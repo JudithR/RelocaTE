@@ -1,9 +1,7 @@
-Data collected from: 
-	Wicker, Sabot, Hua-Van et al., 2007
-	Yuan and Wessler, 2011
+Wicker, Sabot, Hua-Van et al., 2007
+Yuan and Wessler, 2011
 
 Class 1 elements (Retrotransposons)
-			TSD_len	TSD_pattern
   Subclass 1 LTR	4-6	TG..CA
     Superfamily Copia	4-6
     Superfamily Gypsy	4-6
@@ -13,7 +11,6 @@ Class 1 elements (Retrotransposons)
 
 Class 2 elements (DNA Transposons)
   Subclass 1 TIR
-			TSD_len	TSD_pattern
     Superfamily CACTA	2-3
     Superfamily Mutator	9-11
     Superfamily hAT	(5-7)-8

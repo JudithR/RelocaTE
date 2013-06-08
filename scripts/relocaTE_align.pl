@@ -13,7 +13,7 @@ my $regex_file  = shift;
 my $TE          = shift;
 my $exper       = shift;
 my $bowtie2     = shift;
-my $bowtie_sam  = 0;
+my $bowtie_sam  = 1;
 ##get the regelar expression patterns for mates and for the TE
 ##when passed on the command line as an argument, even in single
 ##quotes I lose special regex characters

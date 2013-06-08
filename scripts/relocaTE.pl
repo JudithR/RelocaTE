@@ -49,7 +49,7 @@ GetOptions(
   'bt|blat_tileSize:i'   => \$blat_tileSize,
   'f|flanking_seq_len:i' => \$flanking_seq_len,
   '-r|reference_ins:s'   => \$existing_TE,
-##  '-b2|bowtie2:i'        => \$bowtie2,
+  '-b2|bowtie2:i'        => \$bowtie2,
   'h|help' => \&getHelp,
 );
 my $current_dir;
@@ -147,8 +147,8 @@ elsif ( !-d $fq_dir ) {
 }
 else {
   my $fq_path = File::Spec->rel2abs($fq_dir);
-  @fq_files = <$fq_path/*fq>;
-  my @fastq_files = <$fq_path/*fastq>;
+  @fq_files = <$fq_path/*.fq>;
+  my @fastq_files = <$fq_path/*.fastq>;
   push @fq_files, @fastq_files;
   if ( scalar @fq_files == 0 ) {
     print "Must provide at least 1 short read file\n";
@@ -234,14 +234,13 @@ options:
 					reference.
 					option-2) input the file name of a tab-delimited file containing the coordinates
 					of TE insertions pre-existing in the reference sequence. [no default]
+-b2 |--bowtie2	        INT             to use bowtie2 use \'-b2 1\' else for bowtie use \'-b2 0\' [0]
 -h |--help				this message
 
 
 See documentation for more information. http://srobb1.github.com/RelocaTE/
 
 ';
-## use in V2
-## -b2 |--bowtie2	        INT             to use bowtie2 use \'-b2 1\' else for bowtie use \'-b2 0\' [0]
   exit 1;
 }
 if ( $outdir eq '' or $outdir =~ /^\s+$/ or !defined $outdir ) {
@@ -712,10 +711,14 @@ echo \$$jobName\n";
 foreach my $te_path (@te_fastas) {
   my @path     = split '/', $te_path;
   my $te_fasta = pop @path;
-  my $path     = join '/', @path;
   my $TE       = $te_fasta;
+  my $path     = join '/', @path;
   $TE =~ s/\.fa//;
+
+  pop @path;
+  my $pre_path     = join '/', @path;
   if ($parallel) {
+
     my $shell_dir = "$shellscripts/step_6/$TE";
     make_path( $shell_dir, { mode => 0755 } );
     open FINISH, ">$shellscripts/step_6/$TE/step_6.$TE.finishing.sh";
@@ -727,7 +730,7 @@ foreach my $te_path (@te_fastas) {
 `mkdir -p $path/results/all_files`
 
 #combine confident insertions to one file
-echo \"TE\tTSD\tExper\tchromosome\tinsertion_site\tstrand\tleft_flanking_read_count\tright_flanking_read_count\tleft_flanking_seq\tright_flanking_seq\tTE_orientation\" > $path/results/temp
+echo \"TE\tTSD\tExper\tinsertion_site\tstrand\tleft_flanking_read_count\tright_flanking_read_count\tleft_flanking_seq\tright_flanking_seq\" > $path/results/temp
 for i in \`ls $path/results/*.$TE.confident_nonref_insert.txt\` ; do grep -v flanking_read_count \$i >> $path/results/temp ; done
 mv $path/results/temp $path/results/$exper.$TE.confident_nonref.txt
 mv $path/results/*.$TE.confident_nonref_insert.txt $path/results/all_files
@@ -753,6 +756,13 @@ mv $path/results/*.$TE.all_insert.gff $path/results/all_files
 for i in \`ls $path/results/*.$TE.confident_nonref_insert_reads_list.txt\` ; do cat \$i  >> $path/results/temp5 ; done
 mv $path/results/temp5 $path/results/$exper.$TE.confident_nonref_reads_list.txt
 mv $path/results/*.$TE.confident_nonref_insert_reads_list.txt $path/results/all_files
+
+# move other outfiles somewhere else
+if [ -e $pre_path/bowtie-build.out ] ; then 
+  mv $pre_path/bowtie-build.out $path/bowtie_aln/.
+fi
+mv $pre_path/existingTE.blat.stdout $path/blat_output/.
+mv $pre_path/existingTE.blatout $path/blat_output/.
 
 ";
     `chmod +x $shellscripts/step_6/$TE/step_6.$TE.finishing.sh`;
@@ -781,7 +791,7 @@ echo \$$jobName\n";
     ##do it now
     ##combine and delete individual chr files for confident sites
     print "Finishing and cleaning up\n";
-`echo \"TE\tTSD\tEper\tchromosome\tinsertion_site\tstrand\tleft_flanking_read_count\tright_flanking_read_count\tleft_flanking_seq\tright_flanking_seq\tTE_orientation\" > $path/results/temp`;
+`echo \"TE\tTSD\tExper\tinsertion_site\tstrand\tleft_flanking_read_count\tright_flanking_read_count\tleft_flanking_seq\tright_flanking_seq\" > $path/results/temp`;
     my @files = `ls $path/results/*.$TE.confident_nonref_insert.txt`;
     foreach my $file (@files) {
       chomp $file;
@@ -826,6 +836,16 @@ echo \$$jobName\n";
       `cat $file >> $path/results/temp5`;
       unlink $file;
     }
+    # move other outfiles somewhere else
+if (-e "$pre_path/bowtie-build.out" ){ 
+   `mv $pre_path/bowtie-build.out $path/bowtie_aln/.`;
+}
+`mv $pre_path/existingTE.blat.stdout $path/blat_output/.`;
+`mv $pre_path/existingTE.blatout $path/blat_output/.`;
+  if ( -d  "$pre_path/shellscripts"){
+     `rm -rf $pre_path/shellscripts`;
+  }
+
 `mv $path/results/temp5 $path/results/$exper.$TE.confident_nonref_reads_list.txt`;
     print "$TE results are found in $path/results\n";
   }
@@ -846,7 +866,7 @@ elsif ($parallel) {
 
   #system (sort "$current_dir/$top_dir/run_these_jobs.sh");
   print
-    "Run each command line statement in $current_dir/$top_dir/run_these_jobs.sh.
+    "Run each command line statement in $current_dir/$top_dir/run_these_jobs.sh
 --Run these in order (step_1,step_2,step_3, so on) for each TE.
 --For example, all the step_3 scripts for a specific TE should be successfully completed (finished without errors) 
 before running a step_4 script of the same TE.
