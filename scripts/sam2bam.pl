@@ -13,7 +13,7 @@ my $lowest_dir  = basename($dir_path);
 
 if ( -e "$dir_path/$sample.$lowest_dir.sam" ) {
   `samtools view -b -S -T $genome_path $dir_path/$sample.$lowest_dir.sam >  $dir_path/$sample.$lowest_dir.bam`;
-  `samtools sort  $dir_path/$sample.$lowest_dir.bam  $dir_path/$sample.$lowest_dir.sorted`;
+  `samtools sort -O bam -T $dir_path/$sample.$lowest_dir.bam.tmp -o $dir_path/$sample.$lowest_dir.sorted.bam $dir_path/$sample.$lowest_dir.bam`;
   `samtools index  $dir_path/$sample.$lowest_dir.sorted.bam`;
 }
 else {
@@ -23,6 +23,6 @@ else {
 
 if ( -e "$dir_path/$sample.$lowest_dir.unPaired.sam" ) {
   `samtools view -b -S -T $genome_path $dir_path/$sample.$lowest_dir.unPaired.sam >  $dir_path/$sample.$lowest_dir.unPaired.bam`;
-  `samtools sort  $dir_path/$sample.$lowest_dir.unPaired.bam  $dir_path/$sample.$lowest_dir.unPaired.sorted`;
+  `samtools sort -O bam -T $dir_path/$sample.$lowest_dir.unPaired.bam.tmp -o  $dir_path/$sample.$lowest_dir.unPaired.sorted.bam $dir_path/$sample.$lowest_dir.unPaired.bam`;
   `samtools index  $dir_path/$sample.$lowest_dir.unPaired.sorted.bam`;
 }

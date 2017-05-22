@@ -42,7 +42,7 @@ print SH "samtools merge \$tmp_dir/$lowest_dir.merged.bam $dir_path/*bam\n";
 
 #sort and index merged bam
 print SH
-"samtools sort  \$tmp_dir/$lowest_dir.merged.bam  \$tmp_dir/$lowest_dir.merged.sorted\n";
+"samtools sort -O bam -T \$tmp_dir/$lowest_dir.merged.bam.tmp -o \$tmp_dir/$lowest_dir.merged.sorted.bam \$tmp_dir/$lowest_dir.merged.bam\n";
 print SH "samtools index  \$tmp_dir/$lowest_dir.merged.sorted.bam\n";
 
 =cut

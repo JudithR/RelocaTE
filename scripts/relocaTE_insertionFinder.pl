@@ -3,7 +3,7 @@ use strict;
 use Data::Dumper;
 use Bio::DB::Fasta;
 
-if ( !defined @ARGV ) {
+if ( !@ARGV ) {
   die "Do not run directly, to be called by relocaTE.pl\n";
 }
 

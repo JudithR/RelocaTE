@@ -313,7 +313,7 @@ fi\n";
 
 print OUTFILE "if [ -e \$tmp_dir/$sample.unPaired.sam ] ; then 
 samtools view -h -b -S -T $genome_path \$tmp_dir/$sample.unPaired.sam >  \$tmp_dir/$sample.unPaired.bam
-samtools sort  \$tmp_dir/$sample.unPaired.bam  \$tmp_dir/$sample.unPaired.sorted
+samtools sort -O bam -T \$tmp_dir/$sample.unPaired.bam.tmp  -o \$tmp_dir/$sample.unPaired.sorted.bam \$tmp_dir/$sample.unPaired.bam
 samtools index  \$tmp_dir/$sample.unPaired.sorted.bam
 cp \$tmp_dir/$sample.unPaired.sorted.bam* $current_dir/bam_for_all_reads/. ; fi \n";
 
@@ -325,7 +325,7 @@ cp \$tmp_dir/$sample.unPaired.sorted.bam* $current_dir/bam_for_all_reads/. ; fi 
 "samtools view -h -b -S -T $genome_path \$tmp_dir/$sample.sam >  \$tmp_dir/$sample.bam\n";
   print OUTFILE "echo \"$sample start samtools:sort\"\n";
   print OUTFILE
-    "samtools sort  \$tmp_dir/$sample.bam  \$tmp_dir/$sample.sorted\n";
+    "samtools sort -O bam -T \$tmp_dir/$sample.bam.tmp  -o \$tmp_dir/$sample.sorted.bam \$tmp_dir/$sample.bam\n";
   print OUTFILE "echo \"$sample samtools:index\"\n";
   print OUTFILE "samtools index  \$tmp_dir/$sample.sorted.bam\n";
   print OUTFILE "echo \"$sample end samtools\"\n\n";

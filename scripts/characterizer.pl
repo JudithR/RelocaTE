@@ -208,10 +208,10 @@ if ($excision) {
       open POSSAM, ">$sam";
       print POSSAM $pos_sam;
       `samtools view -bT $genome_fasta $sam > $bam`;
-      `samtools sort $bam $sorted_bam`;
+      `samtools sort -O bam -T $bam.tmp -o $sorted_bam.bam $bam`;
       `samtools index $sorted_bam.bam`;
-
-`samtools mpileup -C50 -ugf $genome_fasta -r $range  $sorted_bam.bam | bcftools view -bvcg - > $cwd/$pos.var.raw.bcf`;
+## echo "samtools mpileup -d 2000 -t DP,DPR,DV,DP4,SP -AEf ../reference/platanus_scaffold_10255__1kb_scaffold.fa  -gu  *.bam | bcftools call -vmO z -f GQ -o platanus_samtools_snps_files.vcf.gz" | bash
+`samtools mpileup -C50 -ugf $genome_fasta -r $range  $sorted_bam.bam | bcftools call -vcg - > $cwd/$pos.var.raw.bcf`;
 `bcftools view $cwd/$pos.var.raw.bcf | vcfutils.pl varFilter -D 100 > $cwd/$pos.var.flt.vcf`;
       push @vcfs, "$cwd/$pos.var.flt.vcf";
       push @unlink_files, $sam, $bam, "$sorted_bam.bam.bai", "$sorted_bam.bam",
